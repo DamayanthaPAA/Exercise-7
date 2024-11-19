@@ -1,0 +1,7 @@
+{
+    "rateLimiterSettings": {
+        "windowIizeInMillis": 10000,
+        "limit": 3
+
+    }
+}

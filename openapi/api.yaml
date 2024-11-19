@@ -1,0 +1,219 @@
+openapi: 3.1.0
+info:
+  title: Karelia API Programming - OpenAPI 3.1.0 Demonstration
+  description: |-
+    This is a sample OpenAPI OAD.
+    
+    Some useful links:
+    - [Learn OpenAPI](https://learn.openapis.org)
+    - [OpenAPI Specification](https://learn.openapis.org/)
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: anura.pitumpe@edu.karelia.fi
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 0.1.1
+
+# 2) Apply the security globally to all operations
+security:
+  - bearerAuth: []
+
+servers:
+  - url: http://localhost:3000
+
+tags:
+  - name: Sample dataset
+    description: Everything you need to know about APIs
+    externalDocs:
+      description: Find out more
+      url: https://m.karelia.fi
+  - name: Authentication
+    description: Authentication endpoints
+
+paths:
+  /data:
+    get:
+      tags:
+        - Sample dataset
+      summary: Returns a dataset
+      description: Retrieves all records in the dataset.
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Data'
+
+    post:
+      tags:
+        - Sample dataset
+      summary: Add a new record to the dataset
+      description: Creates a new record in the dataset.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Data'
+      responses:
+        '201':
+          description: Record created successfully
+        '409':
+          description: Record already exists
+        '415':
+          description: Unsupported media type
+
+  /data/{id}:
+    get:
+      tags:
+        - Sample dataset
+      summary: Get a record by ID
+      description: Retrieves a record by its unique ID.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Numeric ID of the record to retrieve
+      responses:
+        '200':
+          description: Record found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Data'
+        '404':
+          description: Record not found
+
+    delete:
+      tags:
+        - Sample dataset
+      summary: Delete a record by ID
+      description: Deletes a record by its unique ID.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Numeric ID of the record to delete
+      responses:
+        '200':
+          description: Record deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Data'
+        '404':
+          description: Record not found
+
+    put:
+      tags:
+        - Sample dataset
+      summary: Update a record by ID
+      description: Updates an existing record by its ID or creates it if not found.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Numeric ID of the record to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Data'
+      responses:
+        '200':
+          description: Record updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Data'
+        '201':
+          description: Record created successfully
+        '415':
+          description: Unsupported media type
+
+  /login:
+    post:
+      security: []  # Override global security for login endpoint
+      tags:
+        - Authentication
+      summary: User login
+      description: Authenticates a user and returns a Bearer token for accessing protected endpoints.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:  # Changed from userName to username
+                  type: string
+                  example: "jk"
+                password:  # Fixed typo in password
+                  type: string
+                  example: "sala"
+              required:
+                - username
+                - password
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username:
+                    type: string
+                    example: "jk"
+                  access_token:
+                    type: string
+                    description: "JWT Bearer token"
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  token_type:
+                    type: string
+                    example: "Bearer"
+                  expires_in:
+                    type: string
+                    example: "1h"
+        '401':
+          description: Invalid username or password
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "login"
+
+components:
+  schemas:
+    Data:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "1"
+        Firstname:
+          type: string
+          example: Jyri
+        Surname:
+          type: string
+          example: Kemppainen
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
